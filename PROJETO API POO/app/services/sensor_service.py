@@ -11,23 +11,30 @@ from models.sensor_classes import (
     Sensor, SensorTemperatura, SensorUmidade, SensorQualidadeAr
 )
 
+import sqlite3 # Adicione para tipagem
+
 # =============================
 # SERVICES
 # =============================
 
-def service_criar_sensor(tipo, local):
-    return criar_sensor(tipo, local)
+# 1. FUNÇÃO: service_criar_sensor
+# Recebe conn e o repassa para criar_sensor
+def service_criar_sensor(conn: sqlite3.Connection, tipo: str, local: str):
+    return criar_sensor(conn, tipo, local)
 
 
-def service_registrar_leitura(id, valor):
-    row = buscar_sensor(id)
+# 2. FUNÇÃO: service_registrar_leitura
+# Recebe conn e o repassa para as funções de DB
+def service_registrar_leitura(conn: sqlite3.Connection, id: int, valor: float):
+    # Passa conn para buscar_sensor
+    row = buscar_sensor(conn, id) 
 
     if row is None:
         return None, "Sensor não encontrado!"
 
     tipo, local = row
 
-    # Instância correta
+    # Instância correta (Lógica de Negócio)
     if tipo == "temperatura":
         sensor = SensorTemperatura(tipo, local)
     elif tipo == "umidade":
@@ -39,18 +46,23 @@ def service_registrar_leitura(id, valor):
 
     alerta = sensor.analisar_dado(valor)
 
-    registrar_leitura(id, valor)
+    # Passa conn para registrar_leitura
+    registrar_leitura(conn, id, valor) 
 
     return alerta, None
 
 
-def service_listar_sensores():
-    sensores = listar_sensores()
+# 3. FUNÇÃO: service_listar_sensores
+# Recebe conn e o repassa para as funções de DB
+def service_listar_sensores(conn: sqlite3.Connection):
+    # Passa conn para listar_sensores
+    sensores = listar_sensores(conn)
 
     resultado = []
     for s in sensores:
         sensor_id, tipo, local = s
-        leituras = listar_leituras(sensor_id)
+        # Passa conn para listar_leituras
+        leituras = listar_leituras(conn, sensor_id) 
         media = sum(leituras) / len(leituras) if leituras else 0
 
         resultado.append({
@@ -64,5 +76,8 @@ def service_listar_sensores():
     return resultado
 
 
-def service_relatorio():
-    return gerar_relatorio()
+# 4. FUNÇÃO: service_relatorio
+# Recebe conn e o repassa para gerar_relatorio
+def service_relatorio(conn: sqlite3.Connection):
+    return gerar_relatorio(conn)
+
