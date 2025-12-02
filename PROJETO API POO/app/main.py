@@ -20,14 +20,14 @@ from fastapi import FastAPI
 from database import criar_tabelas # 1. NOVIDADE: Importa a função do DB
 from app.controllers.sensor_controller import router # Usei 'router' conforme sua imagem mais recente
 
-# Cria a sua Loja Online (FastAPI)
+
 app = FastAPI()
 
-# 2. NOVIDADE: Diz ao Arquiteto para construir as salas do banco!
-# Esta linha executa a criação do DB e das tabelas (se elas não existirem).
+
 criar_tabelas() 
 
-# Inclui as Rotas da Loja
+
 app.include_router(router)
+
 
 
